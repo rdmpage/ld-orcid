@@ -14,7 +14,7 @@ fix_triples: do anything you need to make triples acceptable to a triple store
 
 $config['cache']	= dirname(__FILE__) . '/cache';
 $config['fresh'] 	= 60; // time in seconds beyond which we think data needs to be refreshed
-$config['url'] 		= 'https://zenodo.org/api/records/<ID>';
+$config['url'] 		= 'https://orcid.org//<ID>';
 $config['mime']		= 'application/ld+json';
 
 $fetch_count 		= 1;
@@ -135,7 +135,11 @@ function get_one($id, $force = false, $refresh = false)
 // Convert id to a directory, requires that id is an integer, or can be converted to one
 function id_to_dir($id)
 {
+	// ORCID-specific code
 	$number = $id;
+	$number = str_replace('-', '', $number);
+	$number = preg_replace('/X$/', '0', $number);
+	$number = preg_replace('/^0+/', '', $number);
 	
 	$dir = floor($number / 1000);	
 	
@@ -193,43 +197,6 @@ function fix_triples($triples)
 	
 	// print_r($lines);	
 	
-	// fix bad URIs
-	foreach ($lines as &$line)
-	{
-		//echo $line . "\n";
-		if (preg_match_all('/\<(?<uri>(https?|URI:\s+).*)\>\s/U', $line, $m))
-		{
-			foreach ($m['uri'] as $original_uri)
-			{				
-				$uri = $original_uri;
-				
-				$uri = str_replace('<', '%3C', $uri);
-				$uri = str_replace('>', '%3E', $uri);
-
-				$uri = str_replace('[', '%5B', $uri);
-				$uri = str_replace(']', '%5D', $uri);
-			
-				$uri = str_replace(' ', '%20', $uri);	
-				$uri = str_replace('"', '%22', $uri);	
-							
-				$uri = str_replace('{\_}', '', $uri);
-				$uri = str_replace('\_', '', $uri);
-				
-				$uri = str_replace('}', '', $uri);	
-				$uri = str_replace('{', '', $uri);					
-				
-				$uri = preg_replace('/URI:\s+/', '', $uri);	
-
-				$uri = preg_replace('/%x/', '', $uri);	
-				
-				$uri = preg_replace('/\x91/', ' ', $uri);
-					
-				$line = str_replace('<' . $original_uri . '>', '<' . $uri . '>', $line);
-			}
-		}
-	}
-	
-	
 	// b-nodes
 	$bnodes = array();
 	
@@ -267,6 +234,52 @@ function fix_triples($triples)
 			$line = preg_replace('/(_:b\d+)\s+\.\s*$/', $bnodes[$m['id']]. " . ", $line);
 		}		
 	}
+	
+	// fix bad URIs
+	foreach ($lines as &$line)
+	{
+		//echo $line . "\n";
+		if (preg_match_all('/\<(?<uri>(https?|URI:\s+).*)\>\s/U', $line, $m))
+		{
+			foreach ($m['uri'] as $original_uri)
+			{				
+				$uri = $original_uri;
+				
+				$uri = str_replace('<', '%3C', $uri);
+				$uri = str_replace('>', '%3E', $uri);
+
+				$uri = str_replace('[', '%5B', $uri);
+				$uri = str_replace(']', '%5D', $uri);
+			
+				$uri = str_replace(' ', '%20', $uri);	
+				$uri = str_replace('"', '%22', $uri);	
+							
+				$uri = str_replace('{\_}', '', $uri);
+				$uri = str_replace('\_', '', $uri);
+				
+				$uri = str_replace('}', '', $uri);	
+				$uri = str_replace('{', '', $uri);					
+				
+				$uri = preg_replace('/URI:\s+/', '', $uri);	
+
+				$uri = preg_replace('/%x/', '', $uri);	
+				
+				$uri = preg_replace('/\x91/', ' ', $uri);
+					
+				$line = str_replace('<' . $original_uri . '>', '<' . $uri . '>', $line);
+			}
+		}
+	}
+	
+	// fix bad characters
+	foreach ($lines as &$line)
+	{
+		// CR
+		$line = preg_replace('/\x0D/', ' ', $line);
+		
+		// escape \
+		$line = preg_replace('/\\\(.)/', '\\$1', $line);
+	}		
 	
 	$new_triples = join("\n", $lines);
 	$new_triples .= "\n"; 

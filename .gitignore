@@ -1,1 +1,5 @@
+/cache/
+!/cache/README.md
+
 /vendor/
+.DS_Store

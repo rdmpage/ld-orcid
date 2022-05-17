@@ -5,6 +5,7 @@
 require_once(dirname(__FILE__) . '/core.php');
 
 $filename = "ids.txt";
+$filename = "extra.txt";
 
 $force = false; // true if always grab new copy
 $fresh = false; // true if refresh older copies

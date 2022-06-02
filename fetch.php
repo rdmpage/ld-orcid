@@ -10,6 +10,8 @@ $filename = "extra.txt";
 $force = false; // true if always grab new copy
 $fresh = false; // true if refresh older copies
 
+$force = true;
+
 $file_handle = fopen($filename, "r");
 while (!feof($file_handle)) 
 {

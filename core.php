@@ -14,7 +14,7 @@ fix_triples: do anything you need to make triples acceptable to a triple store
 
 $config['cache']	= dirname(__FILE__) . '/cache';
 $config['fresh'] 	= 60; // time in seconds beyond which we think data needs to be refreshed
-$config['url'] 		= 'https://orcid.org//<ID>';
+$config['url'] 		= 'https://orcid.org/<ID>';
 $config['mime']		= 'application/ld+json';
 
 $fetch_count 		= 1;

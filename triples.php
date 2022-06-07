@@ -21,6 +21,17 @@ $force = false;
 
 $files1 = scandir($config['cache']);
 
+// if we are restaring from a broken harvest,
+// ignore every directory up to this point.
+if (1)
+{
+	$id = '0000-0003-4843-680X';
+	$from = id_to_dir($id);
+
+	$key = array_search($from, $files1);
+	$files1 = array_slice($files1, $key);
+}
+
 $nquads = new NQuads();
 
 foreach ($files1 as $directory)

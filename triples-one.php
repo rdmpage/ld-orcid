@@ -66,14 +66,7 @@ $id = '0000-0001-5929-1154';
 //$id = '0000-0002-9807-4790';
 
 
-$id = '0000-0002-4257-741X';
-//$id = '0000-0002-5851-8457';
-//$id = '0000-0001-8829-6069';
-//$id = '0000-0003-1050-6286';
-
-//$id = '0000-0002-5283-6243';
-//$id = '0000-0001-5952-4923';
-//$id = '0000-0003-0194-4487';
+$id = '0000-0003-4951-3555';
 
 $directory = $config['cache'] . '/' . id_to_dir($id);
 
@@ -123,7 +116,7 @@ $serialized = fix_triples($serialized);
 
 echo $serialized;
 
-//echo "\n$filename\n";
+echo "\n$filename\n";
 
 file_put_contents($output, $serialized);
 

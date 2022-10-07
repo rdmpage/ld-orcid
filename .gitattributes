@@ -1,0 +1,5 @@
+# Blocklist files/folders in same directory as the .gitignore file
+/*
+
+# Includelist some files
+!triples.nt

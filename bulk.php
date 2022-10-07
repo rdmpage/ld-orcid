@@ -1,5 +1,9 @@
 <?php
 
+// Generate triples from JSON files
+
+// By default we do this only on the most recently added files
+
 error_reporting(E_ALL);
 
 require_once(dirname(__FILE__) . '/core.php');

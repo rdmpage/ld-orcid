@@ -65,8 +65,11 @@ $id = '0000-0001-5929-1154';
 //$id = '0000-0002-0151-114X';
 //$id = '0000-0002-9807-4790';
 
-
 $id = '0000-0003-3963-752X';
+
+$id = '0000-0002-9444-8716';
+
+
 
 $directory = $config['cache'] . '/' . id_to_dir($id);
 
@@ -79,7 +82,7 @@ $output = $directory . '/' . $id . '.nt';
 
 $json = file_get_contents($filename);
 
-//echo $json;
+echo $json;
 
 // fix JSON
 // "@id" : "grid.1214.6",

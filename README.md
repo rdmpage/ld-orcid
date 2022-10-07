@@ -10,7 +10,9 @@ Fetching mode is to grab JSON-LD, cache it, convert each file to triples and sto
 
 For distribution we would concatenate all triples into one big file and distribute that.
 
-## Issues
+## Problems
+
+### Specific ORCIDs
 
 0000-0002-0633-5974 is 2.8 mb in size and breaks `triples.php`. Need to increase memory:
 
@@ -18,11 +20,9 @@ For distribution we would concatenate all triples into one big file and distribu
 php -d memory_limit=-1 triples.php
 ```
 
-## ORCID errors
+### GRID ids are not URIs
 
-### grid ids not URIs
-
-See https://github.com/ORCID/ORCID-Source/issues/6519 ORCID uses grid as `@id` but doesn’t render themas URIs, so triples break, e.g.
+See https://github.com/ORCID/ORCID-Source/issues/6519 ORCID uses GRID as `@id` but doesn’t render them as URIs, so triples break, e.g.
 
 ```
 "affiliation" : [ {

@@ -273,6 +273,9 @@ function fix_triples($triples)
 		// known bad examples
 		// 0000-0002-9444-8716
 		$line = str_replace('http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33', 'http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33', $line);
+		
+		// 0000-0003-2861-949X
+		// manually fix
 	}
 	
 	// fix bad characters

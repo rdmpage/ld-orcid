@@ -1,2 +1,12 @@
-/* export-ignore
-!triples.nt.zip
+/cache export-ignore
+
+*.gitattributes export-ignore
+*.gitignore export-ignore
+
+*.md export-ignore
+*.php export-ignore
+*.txt export-ignore
+*.bbprojectd export-ignore
+*.request export-ignore
+*.json export-ignore
+*.lock export-ignore

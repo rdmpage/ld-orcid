@@ -15,6 +15,8 @@ $cuid = new EndyJasmi\Cuid;
 
 $nquads = new NQuads();
 
+//----------------------------------------------------------------------------------------
+
 
 $id = '0000-0001-5012-8422';
 $id = '0000-0001-5028-0686';
@@ -71,6 +73,23 @@ $id = '0000-0002-9444-8716';
 
 $id = '0000-0003-2861-949X';
 
+$id = '0000-0001-6419-2046';
+
+$id ='0000-0001-9598-5583';
+
+//$id ='0000-0002-2953-2815';
+
+$id = '0000-0001-6419-2046';
+$id = '0000-0001-9469-8857';
+//$id = '0000-0003-0336-8305';
+
+$id = '0000-0002-3210-7537';
+
+$id = '0000-0002-6957-4673'; // fixed
+
+//$id = '0000-0002-9237-1364';
+//$id = '0000-0003-3808-3131';
+
 
 
 $directory = $config['cache'] . '/' . id_to_dir($id);
@@ -84,7 +103,7 @@ $output = $directory . '/' . $id . '.nt';
 
 $json = file_get_contents($filename);
 
-echo $json;
+//echo $json;
 
 // fix JSON
 // "@id" : "grid.1214.6",
@@ -111,6 +130,93 @@ if (preg_match('/"url" : \[ "(?<url>[^"]+)"/', $json, $m))
 		$json = str_replace($original, $new, $json);
 	}
 }
+
+// Decode JSON, find sameAs and ensure that all are URIs,
+// then recreate JSON
+$obj = json_decode($json);
+
+print_r($obj);
+
+
+
+foreach ($obj->{'@reverse'} as $key => &$item)
+{
+	if ($key == 'creator')
+	{	
+		if (!is_array($item))
+		{
+			if (isset($item->sameAs))
+			{
+				$item->sameAs = fix_urls($item->sameAs);
+			}
+		}
+		else
+		{	
+			foreach ($item as &$work)
+			{
+				foreach ($work as $k => $v)
+				{
+					if ($k == 'sameAs')
+					{
+						$work->sameAs = fix_urls($work->sameAs);
+					}
+				}
+			}
+		}
+	}
+}
+
+// url
+if (isset($obj->url))
+{
+	$obj->url = fix_urls($obj->url);
+}
+
+if (0)
+{
+	// check that our fix has worked
+	foreach ($obj->{'@reverse'} as &$creator)
+	{
+		foreach ($creator as &$work)
+		{
+			foreach ($work as $k => $v)
+			{
+				if ($k == 'sameAs')
+				{
+					print_r($v);
+				}
+			}
+		}
+	}
+}
+
+// fix context so we don't try and resolve it
+if (1)
+{
+	$sameAs = new stdclass;
+	$sameAs->{'@id'} = "sameAs";
+	$sameAs->{'@type'} = "@id";
+	$sameAs->{'@container'} = "@set";
+
+	$mainEntityOfPage = new stdclass;
+	$mainEntityOfPage->{'@id'} = "mainEntityOfPage";
+	$mainEntityOfPage->{'@type'} = "@id";
+
+	$url = new stdclass;
+	$url->{'@id'} = "url";
+	$url->{'@type'} = "@id";
+	
+	$obj->{'@context'} = (object)array(
+		'@vocab' 			=> 'http://schema.org/',
+		'sameAs' 			=> $sameAs,
+		'mainEntityOfPage' 	=> $mainEntityOfPage,
+		'url'				=> $url,
+		);
+	
+}
+
+$json = json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
 
 $quads = JsonLD::toRdf($json);
 $serialized = $nquads->serialize($quads);

@@ -10,7 +10,38 @@ Fetching mode is to grab JSON-LD, cache it, convert each file to triples and sto
 
 For distribution we would concatenate all triples into one big file and distribute that.
 
+```mermaid
+graph 
+P((Person)) -- affiliation --> O(Organization)
+P((Person)) -- identifier --> PI(PropertyValue)
+
+P((Person)) -- alumniOf --> O(Organization)
+O(Organization) -- identifier --> OI(PropertyValue)
+
+P((Person)) -- address --> PO(PostalAddress)
+
+W(CreativeWork) -- creator --> P((Person))
+W(CreativeWork) -- identifier --> WI(PropertyValue)
+
+O(Organization) -- funder --> P((Person))
+```
+
+
 ## Problems
+
+### ORCID context requires internet
+
+ORCID sets the context as a simple URL:
+
+```
+ "@context" : "http://schema.org",
+```
+
+ML\JsonLD therefore tries to resolve  `http://schema.org` for EVERY JSON-LD file when we serialise it as triples! WTF! To avoid this I rewrite the `@context` to be an object with `@vocab`. This enables us to serialise the JSON-LD but means we may misinterpret some aspects of the RDF. For example, `sameAs` is output as an array of strings when it should be an array of URIs. Hence we have to add specific handlers for this in the new context.
+
+### sameAs
+
+`sameAs` should be an array of URIs but often ORCID includes strings. I’ve added this to https://github.com/ORCID/ORCID-Source/issues/6542.
 
 ### Specific ORCIDs
 
@@ -54,4 +85,22 @@ ORCID encodes ROR ids as URLs but in a `PropertyValue`, whereas I think the URL 
 
 See https://github.com/ORCID/ORCID-Source/issues/6520 for further discussion.
 
+## SPARQL
+
+```
+DESCRIBE <https://orcid.org/0000-0002-9500-4244>
+```
+
+```
+PREFIX : <http://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT * 
+FROM <https://orcid.org>
+WHERE {
+  ?funder :funder ?person .
+  ?funder :name ?name .
+}
+LIMIT 10
+```
 

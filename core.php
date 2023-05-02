@@ -239,10 +239,12 @@ function fix_triples($triples)
 	foreach ($lines as &$line)
 	{
 		//echo $line . "\n";
-		if (preg_match_all('/\<(?<uri>(https?|URI:\s+).*)\>\s/U', $line, $m))
+		if (preg_match_all('/\<(?<uri>(https?|URI:\s+).*)\>\s/iU', $line, $m))
 		{
 			foreach ($m['uri'] as $original_uri)
 			{				
+				//echo "|$original_uri|\n";
+			
 				$uri = $original_uri;
 				
 				$uri = str_replace('<', '%3C', $uri);
@@ -265,7 +267,13 @@ function fix_triples($triples)
 				$uri = preg_replace('/%x/', '', $uri);	
 				
 				$uri = preg_replace('/\x91/', ' ', $uri);
-					
+				
+				$uri = preg_replace('/\x{C296}/u', ' ', $uri);
+				
+				$uri = preg_replace('/%20$/', '', $uri);	
+				
+				$uri = str_replace('http://Http://', 'http://', $uri);
+									
 				$line = str_replace('<' . $original_uri . '>', '<' . $uri . '>', $line);
 			}
 		}
@@ -274,8 +282,15 @@ function fix_triples($triples)
 		// 0000-0002-9444-8716
 		$line = str_replace('http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33', 'http://www.prtrg.org/pdf/proceedings-prtrg-12.pdf#page=33', $line);
 		
+		// 0000-0001-9469-8857
+		//$line = str_replace('http://Http://', 'http://', $line);
+		//$line = preg_replace('/\s+"\s+\.$/', '" .', $line);
+		
 		// 0000-0003-2861-949X
 		// manually fix
+		
+		
+		
 	}
 	
 	// fix bad characters
@@ -286,6 +301,15 @@ function fix_triples($triples)
 		
 		// escape \
 		$line = preg_replace('/\\\(.)/', '\\$1', $line);
+		
+		// BibTeX crap
+		// {'}
+		$line = preg_replace("/\{'\}/", "'", $line);
+
+		// {$1"O}	
+		$line = str_replace('{$1"O}', "Ö", $line);		
+		
+		$line = preg_replace('/\x{96}/u', '-', $line);
 	}		
 	
 	$new_triples = join("\n", $lines);
@@ -293,6 +317,31 @@ function fix_triples($triples)
 	
 	return $new_triples;
 
+}
+
+//----------------------------------------------------------------------------------------
+// Ensure one or more urls are valid`
+function fix_urls($input_sameas)
+{
+	$sameAs = array();
+	if (!is_array($input_sameas))
+	{
+		$input_sameas = array($input_sameas);
+	}
+	foreach ($input_sameas as $value)
+	{
+		// clean
+		$value = preg_replace('/\x{96}/u', '-', $value);
+	
+		if (preg_match('/^https?:\/\//', $value))
+		{
+			$sameAs[] = trim ($value);
+		}
+	}
+	
+	$sameAs = array_unique($sameAs);
+	
+	return $sameAs;	
 }
 
 

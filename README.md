@@ -10,6 +10,10 @@ Fetching mode is to grab JSON-LD, cache it, convert each file to triples and sto
 
 For distribution we would concatenate all triples into one big file and distribute that.
 
+## ORCID data model
+
+The diagram below summarises the ORCID data model of people connected to works, organisations, and addresses.
+
 ```mermaid
 graph 
 P((Person)) -- affiliation --> O(Organization)
@@ -26,6 +30,15 @@ W(CreativeWork) -- identifier --> WI(PropertyValue)
 O(Organization) -- funder --> P((Person))
 ```
 
+## Triples and quads
+
+To get/refresh raw JSON-LD data data use `fetch.php`. Run `triples.php` to update triples for new ORCID records.
+
+To generate all triples use `bulk.php`. To generate all quads (each with the corresponding ORCID id as the URI for the graph) then use `bulk-nquads.php`).
+
+### Uploading
+
+To upload squads use `chunk-nquads.php` which generates chunks and then uploads to triple store.
 
 ## Problems
 
@@ -37,11 +50,11 @@ ORCID sets the context as a simple URL:
  "@context" : "http://schema.org",
 ```
 
-ML\JsonLD therefore tries to resolve  `http://schema.org` for EVERY JSON-LD file when we serialise it as triples! WTF! To avoid this I rewrite the `@context` to be an object with `@vocab`. This enables us to serialise the JSON-LD but means we may misinterpret some aspects of the RDF. For example, `sameAs` is output as an array of strings when it should be an array of URIs. Hence we have to add specific handlers for this in the new context.
+`ML\JsonLD` therefore tries to resolve  `http://schema.org` for **every** JSON-LD file when we serialise it as triples! To avoid this I rewrite the `@context` to be an object with `@vocab`. This enables us to serialise the JSON-LD but means we may misinterpret some aspects of the RDF. For example, `sameAs` is output as an array of strings when it should be an array of URIs. Hence we have to add specific handlers for this in the new context.
 
 ### sameAs
 
-`sameAs` should be an array of URIs but often ORCID includes strings. I’ve added this to https://github.com/ORCID/ORCID-Source/issues/6542.
+`sameAs` should be an array of URIs but often ORCID includes strings. I’ve added this issue to https://github.com/ORCID/ORCID-Source/issues/6542. Note that `sameAs` can also link things that are not the same, such as articles and journals, see https://github.com/ORCID/ORCID-Source/issues/7005
 
 ### Specific ORCIDs
 
@@ -61,9 +74,9 @@ See https://github.com/ORCID/ORCID-Source/issues/6519 ORCID uses GRID as `@id` b
 
 ```
 "affiliation" : [ {
-    "@type" : "Organization",
-    "@id" : "grid.1214.6",
-    "name" : "Smithsonian Institution"
+   "@type" : "Organization",
+   "@id" : "grid.1214.6",
+   "name" : "Smithsonian Institution"
   }
 ```
 
@@ -72,20 +85,26 @@ ORCID encodes ROR ids as URLs but in a `PropertyValue`, whereas I think the URL 
 
 ```
 {
-            "@type": "Organization",
-            "name": "ORCID",
-            "alternateName": "Product",
-            "identifier": {
-                "@type": "PropertyValue",
-                "propertyID": "ROR",
-                "value": "https://ror.org/04fa4r544"
-            }
-        },
+   "@type": "Organization",
+   "name": "ORCID",
+   "alternateName": "Product",
+   "identifier": {
+      "@type": "PropertyValue",
+      "propertyID": "ROR",
+      "value": "https://ror.org/04fa4r544"
+      }
+},
 ```
 
 See https://github.com/ORCID/ORCID-Source/issues/6520 for further discussion.
 
+### ISSNs
+
+Some ORCID records assert that the DOI is the sameAs the ISSN for the journal(!). See https://github.com/ORCID/ORCID-Source/issues/7005
+
 ## SPARQL
+
+Examples of queries.
 
 ```
 DESCRIBE <https://orcid.org/0000-0002-9500-4244>

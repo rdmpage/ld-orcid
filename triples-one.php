@@ -90,6 +90,9 @@ $id = '0000-0002-6957-4673'; // fixed
 //$id = '0000-0002-9237-1364';
 //$id = '0000-0003-3808-3131';
 
+$id = '0000-0001-5350-9984';
+$id = '0000-0002-8084-2640';  // vert bad, @id and identifier value has '}' suffix FFS!
+
 
 
 $directory = $config['cache'] . '/' . id_to_dir($id);
@@ -160,6 +163,14 @@ foreach ($obj->{'@reverse'} as $key => &$item)
 					{
 						$work->sameAs = fix_urls($work->sameAs);
 					}
+					
+					/*
+					// need to also fix identifier, see 0000-0002-8084-2640
+					if ($k == '@id')
+					{
+						$work->{'@id'} = preg_replace('/\}$/', '', $work->{'@id'});
+					}
+					*/
 				}
 			}
 		}
